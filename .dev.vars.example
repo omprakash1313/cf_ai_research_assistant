@@ -1,0 +1,10 @@
+# Optional keys for extra research sources. Copy to .dev.vars for local dev,
+# and use `npx wrangler secret put <NAME>` for the deployed Worker.
+
+# Web search via Tavily (free tier: https://app.tavily.com). Without it,
+# research uses Wikipedia, research papers, and GitHub only.
+TAVILY_API_KEY=
+
+# GitHub token (no scopes needed) to raise GitHub's search rate limit
+# from 10 to 30 requests per minute. Optional.
+GITHUB_TOKEN=
