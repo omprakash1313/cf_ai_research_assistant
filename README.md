@@ -111,7 +111,7 @@ Workers AI has no local emulator, so even local development calls the real
 model and needs you to log in.
 
 ```sh
-git clone <this-repo-url> cf_ai_research_assistant
+git clone https://github.com/omprakash1313/cf_ai_research_assistant.git
 cd cf_ai_research_assistant
 npm install
 npx wrangler login     # opens a browser to authorize Wrangler
