@@ -7,6 +7,8 @@ repositories, and the web, reads the best sources, takes notes, and writes a
 cited report. Reports and facts about you are saved to memory, so later
 conversations can build on earlier research.
 
+**Live demo:** https://cf-ai-research-assistant.omprakashkumawat1313.workers.dev
+
 ![Research running in the background while the chat stays responsive](docs/research-in-progress.png)
 
 ## How it meets the assignment
