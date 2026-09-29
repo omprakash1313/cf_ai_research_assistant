@@ -1,564 +1,390 @@
 # PROMPTS.md
 
-## AI-Assisted Development Record
+# AI-Assisted Development Prompts
 
-This document records the prompts provided to the AI coding assistant during the development of this project, along with the runtime prompts used by the application to interact with **Llama 3.3 70B Instruct** through Cloudflare Workers AI.
+This document records the primary prompts used during the development of the project with Claude Code in VS Code.
 
-The purpose of this document is to provide transparency into the AI-assisted development process, architectural decisions, debugging iterations, and runtime prompt design.
+The prompts are intentionally structured to reflect an engineering workflow: **understanding the platform → analyzing requirements → designing the architecture → implementing features → validating behavior → debugging issues → extending functionality**.
 
 ---
 
-# 1. Development Prompts — Claude Code
-
-The application was developed iteratively in a single development session using **Claude Code within VS Code**. The following prompts were used during development.
-
-## 1.1 Cloudflare Agents Documentation
+## 1. Cloudflare Agents — Initial Documentation Review
 
 ### Prompt
 
-> Can you read this link https://developers.cloudflare.com/agents/
+> Please review the official Cloudflare Agents documentation at https://developers.cloudflare.com/agents/.
+>
+> Focus on understanding the core architecture, Agent lifecycle, available APIs, state management, tool execution, and the recommended development patterns.
+>
+> Summarize the concepts that are most relevant to building an AI-powered application on Cloudflare.
 
-### Outcome
+### Objective
 
-The assistant reviewed the Cloudflare Agents documentation to establish an initial understanding of the platform, its architecture, APIs, and recommended development patterns.
+Establish a strong technical foundation before beginning implementation and identify the Cloudflare-native capabilities relevant to the assignment.
 
 ---
 
-## 1.2 Deep Technical Review
+## 2. Deep Technical Analysis of Cloudflare Agents
 
 ### Prompt
 
-> I want you to go deep into this and we need to complete this assignment so you need to get every information.
+> I want to use Cloudflare Agents as the foundation for this assignment. Please perform a deep technical analysis of the official documentation and identify everything that is relevant to implementing a production-quality application.
+>
+> Review the Agents API, architecture, concepts, runtime limitations, state management, Durable Objects, Workflows, deployment requirements, and important implementation considerations.
+>
+> Use the official documentation as the primary source and highlight any constraints or common implementation mistakes that we should account for during development.
 
-### Outcome
+### Objective
 
-The assistant performed a deeper review of the Cloudflare Agents documentation, including the full documentation set (`llms-full.txt`).
-
-The documentation was organized into individual reference files and the following areas were studied in detail:
-
-- Cloudflare Agents Quick Start
-- Agents API
-- Agent concepts and architecture
-- Runtime and platform limits
-- State and persistence
-- Durable Objects
-- Workflows
-- Deployment considerations
-
-This documentation was subsequently used as the primary technical reference during implementation.
+Move beyond a high-level understanding and establish the technical constraints and recommended patterns that would guide the implementation.
 
 ---
 
-## 1.3 Cloudflare Agents Platform Review
+## 3. Cloudflare Agents Platform and SDK Review
 
 ### Prompt
 
-> Also scan this also in depth https://agents.cloudflare.com/
+> Please also perform a detailed review of https://agents.cloudflare.com/.
+>
+> Compare the platform concepts presented there with the official developer documentation and identify the architecture and capabilities that are most applicable to our assignment.
+>
+> In particular, investigate the Agent execution model, LLM interaction, tool execution, workflows, state management, CPU-time versus wall-time considerations, and the Cloudflare Agents SDK.
+>
+> Also review the official SDK guidance for common implementation mistakes, including decorators, migrations, routing, and Durable Object integration.
+
+### Objective
+
+Validate the proposed architecture against both the platform documentation and SDK implementation guidance.
+
+---
+
+# 4. Assignment Requirements and Architecture Planning
+
+### Prompt
+
+> Here is the assignment specification:
+>
+> We plan to fast track candidates who complete an assignment to build a type of AI-powered application on Cloudflare. The application should include:
+>
+> - An LLM, preferably Llama 3.3 through Workers AI, or another external LLM.
+> - Workflow or coordination using Workflows, Workers, or Durable Objects.
+> - User interaction through chat or voice.
+> - Memory or persistent state.
+>
+> Please analyze these requirements and propose an application architecture that demonstrates all four capabilities clearly.
+>
+> The application should be practical, technically interesting, and suitable for demonstrating Cloudflare's AI and serverless capabilities.
+>
+> Before implementation, identify the major components, data flow, storage requirements, external integrations, and deployment considerations.
+
+### Architecture Decision
+
+**Application:** AI Research Assistant
+
+The selected application provides a conversational interface through which users can request research on a topic, retrieve previous research, maintain persistent user facts, and ask follow-up questions.
+
+---
+
+# 5. Repository and Project Conventions
+
+### Prompt
+
+> Please structure the project according to the assignment conventions.
+>
+> Use the `cf_ai_` repository prefix and maintain both `README.md` and `PROMPTS.md`.
+>
+> Keep the project structure clean and production-oriented, with clear separation between the Agent, workflow, application UI, shared types, AI integration, and external research sources.
+>
+> Before creating files, propose the project structure and explain the responsibility of each major component.
+
+### Objective
+
+Establish a maintainable project structure before implementation begins.
+
+---
+
+# 6. Development Environment Compatibility
+
+### Prompt
+
+> Before proceeding with implementation, verify the Node.js and Cloudflare tooling requirements for the selected Agents SDK and project template.
+>
+> If the current environment does not meet the supported requirements, identify the required version and provide the safest upgrade path.
+>
+> Avoid introducing compatibility workarounds unless they are necessary.
 
 ### Outcome
 
-The Cloudflare Agents platform and architecture were reviewed in depth.
-
-Particular attention was given to:
-
-- Input → LLM → execution → tools architecture
-- Agent orchestration
-- Stateful execution
-- CPU-time versus wall-time considerations
-- Tool invocation patterns
-- Durable Objects
-- Workflow execution
-- Cloudflare Agents SDK conventions
-
-The official Cloudflare Agents SDK guidance was also reviewed to identify common implementation issues, including:
-
-- Agent decorators
-- Durable Object migrations
-- Routing configuration
-- SDK conventions
-- Workflow integration patterns
+The development environment was upgraded to Node.js 24 LTS to meet the requirements of the Cloudflare tooling.
 
 ---
 
-# 2. Assignment Requirements
+# 7. Initial Application Implementation
 
-The assignment required an AI-powered application deployed on Cloudflare with the following core components:
+### Prompt
 
-- **Large Language Model (LLM)** — preferably Llama 3.3 through Workers AI
-- **Workflow / orchestration** — using Workers, Workflows, or Durable Objects
-- **User interaction** — through a chat or voice interface
-- **Memory / state management**
-
-Two architectural decisions were established before implementation.
-
-### Application Type
-
-**Research Assistant**
-
-The application was designed as an AI-powered research assistant capable of:
-
-- Understanding research requests
-- Performing multi-source research
-- Persisting research results
-- Remembering user-provided facts
-- Retrieving previously generated research
-- Answering follow-up questions using stored research
-
-### Repository Conventions
-
-The project follows the requested conventions:
-
-- `cf_ai_` repository prefix
-- `README.md`
-- `PROMPTS.md`
-- Cloudflare-native architecture
+> Implement the research assistant architecture we have defined.
+>
+> Use the Cloudflare Agents starter project as the foundation and implement the application using TypeScript.
+>
+> The initial implementation should include:
+>
+> 1. A conversational Agent.
+> 2. A durable research Workflow.
+> 3. Persistent state using SQLite.
+> 4. A web-based chat interface.
+> 5. Agent tools for starting research, retrieving reports, searching previous reports, and remembering user facts.
+>
+> Keep the implementation modular and strongly typed.
+>
+> Configure the required Cloudflare bindings and regenerate the appropriate types after configuration changes.
+>
+> After implementation, run type checking, linting, and a production build and resolve any issues found.
 
 ---
 
-# 3. Development Environment
+# 8. Cloudflare Deployment Configuration
 
-During development, the Cloudflare tooling required a newer Node.js version than the existing environment.
+### Prompt
 
-The development environment was therefore upgraded to **Node.js 24 LTS**.
-
-Cloudflare tooling was then initialized and configured using the supported project scaffolding and SDK versions.
-
-The project was scaffolded from:
-
-```text
-cloudflare/agents-starter
-```
+> Configure the project for deployment on Cloudflare Workers.
+>
+> Verify the Wrangler configuration, Workflow binding, compatibility date, generated types, and required environment configuration.
+>
+> After configuration, validate that the project can build successfully and that the local runtime is compatible with the configured Cloudflare features.
 
 ---
 
-# 4. Application Architecture
+# 9. End-to-End Testing
 
-The application was designed around four primary layers:
+### Prompt
 
-```text
-User
-  │
-  ▼
-Chat Interface
-  │
-  ▼
-Cloudflare Agent
-  │
-  ├── Memory
-  ├── Report Retrieval
-  ├── Research Tool
-  │
-  ▼
-Research Workflow
-  │
-  ├── Query Planning
-  ├── Wikipedia
-  ├── Research Papers
-  ├── Open-Source Repositories
-  ├── Web Search
-  │
-  ▼
-LLM Analysis
-  │
-  ▼
-Persistent Research Report
-```
-
-The major application components were implemented as:
-
-```text
-src/
-├── ai.ts
-├── app.tsx
-├── server.ts
-├── workflow.ts
-├── sources.ts
-└── shared.ts
-```
-
-The Cloudflare Workflow binding was configured through:
-
-```text
-wrangler.jsonc
-```
-
-Types were regenerated after binding configuration to ensure the implementation remained consistent with the Cloudflare runtime configuration.
+> Perform a complete end-to-end validation of the research assistant rather than relying only on unit-level or static checks.
+>
+> Test the following workflow:
+>
+> 1. Store a persistent user fact.
+> 2. Start a research request.
+> 3. Execute the research Workflow.
+> 4. Wait for the Workflow to complete.
+> 5. Reload the application.
+> 6. Retrieve the generated report.
+> 7. Ask a follow-up question about the previous research.
+> 8. Open and validate the generated report.
+>
+> If any runtime issue occurs, inspect the underlying behavior, identify the root cause, implement the appropriate fix, and repeat the end-to-end test.
 
 ---
 
-# 5. Initial Implementation
+# 10. Debugging Workers AI Streaming and Tool Calls
 
-The initial implementation established the following capabilities:
+### Prompt
 
-### Agent
-
-The Agent provides the conversational interface and determines which application capability should be invoked.
-
-### Workflow
-
-The Workflow provides durable orchestration for long-running research operations.
-
-### Persistent State
-
-SQLite-based persistence was used to retain:
-
-- User facts
-- Research reports
-- Research metadata
-- Research progress
-
-### Chat Interface
-
-A web-based chat interface was implemented to allow users to:
-
-- Ask questions
-- Start research
-- Retrieve previous research
-- Ask follow-up questions
-- Store information for future conversations
+> During end-to-end testing, tool calls are arriving with empty arguments and streamed assistant text appears to be duplicated.
+>
+> Please investigate this at the protocol/provider level rather than applying a superficial workaround.
+>
+> Compare the raw Workers AI streaming response with the parsing behavior of `workers-ai-provider`.
+>
+> Determine whether the model response is being exposed through multiple response fields and whether the provider is processing the same content more than once.
+>
+> Implement a robust normalization layer around the Workers AI binding if required, while preserving compatibility with the existing Agent and tool-calling architecture.
+>
+> Add validation to confirm that tool arguments and streamed text are processed exactly once.
 
 ---
 
-# 6. Validation and Testing
+# 11. Preventing Repeated Tool Execution
 
-The implementation was validated progressively rather than relying solely on static code inspection.
+### Prompt
 
-The following checks were performed:
-
-- Type checking
-- Linting
-- Production build
-- Cloudflare configuration validation
-- API response validation
-- Direct Workflow/RPC testing
-- End-to-end browser testing
-
-The Wikipedia API response structure was also compared against the application's expected data model to ensure reliable parsing.
-
----
-
-# 7. End-to-End Debugging
-
-After the initial implementation, the complete application was tested through the actual chat interface using a headless Chrome browser.
-
-The test sequence included:
-
-1. Store a user fact.
-2. Start a research request.
-3. Execute the research workflow.
-4. Wait for workflow completion.
-5. Reload the application.
-6. Retrieve the generated report.
-7. Ask a follow-up question.
-8. Open and inspect the final research report.
-
-This testing uncovered several runtime issues that were subsequently resolved.
+> The Agent is occasionally entering a tool-call loop and repeatedly invoking research tools without producing a final response.
+>
+> Analyze the Agent execution lifecycle and identify why the model is being given repeated opportunities to invoke the same tools.
+>
+> Update the execution strategy using the appropriate `prepareStep` or equivalent mechanism so that:
+>
+> - Action tools execute only when appropriate.
+> - Tool availability is constrained across execution steps.
+> - The model is eventually required to produce a final response.
+> - The solution does not rely on arbitrary delays or hard-coded response text.
+>
+> Validate the behavior with an end-to-end test.
 
 ---
 
-## 7.1 Workers AI Streaming Compatibility
+# 12. Explicit Research Intent
 
-### Problem
+### Prompt
 
-Tool calls were occasionally received with empty arguments, while streamed assistant text appeared duplicated.
-
-### Investigation
-
-The raw Workers AI Server-Sent Events output was compared with the parsing behavior of the `workers-ai-provider`.
-
-The investigation showed that the model response can expose streamed content through both OpenAI-compatible and legacy response fields, resulting in duplicated processing.
-
-### Resolution
-
-A dedicated Workers AI wrapper was introduced:
-
-```text
-src/ai.ts
-```
-
-The wrapper normalizes the response before it reaches the application-level model/tool handling.
+> The current Agent can start a research workflow when a user merely mentions an area of interest.
+>
+> Update the Agent behavior so that `startResearch` is invoked only when the latest user message contains an explicit request to research, investigate, analyze, study, or look into a topic.
+>
+> If the user simply mentions an interest or provides information about themselves, store the information using `rememberFact` when appropriate and offer research as an optional next step.
+>
+> Add representative test cases covering both explicit research requests and simple statements of interest.
 
 ---
 
-## 7.2 Repeated Tool Invocation
+# 13. Duplicate Research Jobs and Rate Limiting
 
-### Problem
+### Prompt
 
-The model could repeatedly invoke tools without producing a final response.
-
-### Resolution
-
-The Agent execution loop was constrained using `prepareStep`.
-
-The resulting behavior ensures that:
-
-- Action tools execute once per turn.
-- Tool availability is progressively restricted.
-- No additional action tools are exposed after the configured execution step.
-
-This prevents uncontrolled tool-call loops.
+> End-to-end testing indicates that duplicate research jobs can result in unnecessary external API requests and HTTP 429 responses from Wikipedia.
+>
+> Please implement a robust solution that includes:
+>
+> - Topic-level deduplication.
+> - A maximum of two concurrent research jobs.
+> - Exponential retry backoff.
+> - Appropriate handling of HTTP 429 responses.
+> - Prevention of duplicate work when the same topic is already being processed.
+>
+> The solution should remain compatible with Cloudflare Workflows and should not compromise the durability of the research process.
 
 ---
 
-## 7.3 Research Intent Detection
+# 14. Duplicate Memory Prevention
 
-### Problem
+### Prompt
 
-The system could start a research workflow when the user merely mentioned an area of interest.
-
-For example, mentioning a topic was incorrectly interpreted as a research request.
-
-### Resolution
-
-Research execution was changed to require explicit research intent in the latest user message.
-
-The system now distinguishes between:
-
-```text
-"I am interested in quantum computing."
-```
-
-and:
-
-```text
-"Research quantum computing for me."
-```
-
-The first results in memory being updated and the user being offered the option to research the topic.
-
-The second explicitly starts the research workflow.
+> The current memory implementation can store duplicate facts when the same information is expressed using slightly different formatting.
+>
+> Introduce normalized deduplication before persistence.
+>
+> The implementation should normalize comparable values consistently while preserving the original human-readable fact.
+>
+> Verify that repeated submissions of equivalent facts do not create unnecessary duplicate records.
 
 ---
 
-## 7.4 Duplicate Research Jobs
+# 15. Citation Integrity
 
-### Problem
+### Prompt
 
-Repeated or overlapping research jobs resulted in excessive requests to external sources and caused HTTP `429 Too Many Requests` responses from Wikipedia.
-
-### Resolution
-
-The research workflow was updated with:
-
-- Topic-level deduplication
-- Maximum two concurrent research jobs
-- Exponential backoff
-- Longer retry intervals
-- Duplicate request prevention
-
----
-
-## 7.5 Duplicate Memory Entries
-
-### Problem
-
-Equivalent user facts could be stored multiple times because of differences in formatting or wording.
-
-### Resolution
-
-Normalized deduplication was introduced before persisting facts.
-
-This ensures semantically equivalent normalized entries are not repeatedly stored.
+> The generated research report occasionally contains citation metadata, particularly dates, that is not present in the underlying source data.
+>
+> Strengthen the report-generation instructions so that the model can only cite information explicitly provided by the research pipeline.
+>
+> The model must never invent:
+>
+> - Source titles
+> - URLs
+> - Publication dates
+> - Report IDs
+> - Authors
+> - Citation counts
+>
+> When source metadata is available, citations must reproduce it exactly as provided by the application.
+>
+> Validate the resulting reports against the original source metadata.
 
 ---
 
-## 7.6 Citation Integrity
+# 16. Expanding Beyond Wikipedia
 
-### Problem
+### Prompt
 
-The LLM occasionally generated citation dates that were not present in the source metadata.
-
-### Resolution
-
-The system prompt was strengthened so that citations must use source information exactly as stored by the application.
-
-The model is explicitly instructed:
-
-```text
-Never invent report IDs, sources, or dates.
-```
-
----
-
-# 8. Initial Research Source
-
-The first version of the research system used **Wikipedia as the sole external research source**.
-
-This implementation established the basic research pipeline:
-
-```text
-Research Topic
-      ↓
-Query Planning
-      ↓
-Wikipedia Search
-      ↓
-Source Retrieval
-      ↓
-LLM Note Extraction
-      ↓
-Report Generation
-      ↓
-Persistent Report
-```
-
-The system was subsequently extended to support multiple source types.
+> The initial research implementation currently relies on Wikipedia as its primary external source.
+>
+> Extend the research system so that it can also incorporate:
+>
+> 1. Research papers.
+> 2. Open-source repositories.
+> 3. Web search results.
+>
+> Before implementation, verify the availability and response formats of suitable APIs for each source.
+>
+> Prefer reliable and well-documented APIs. Evaluate OpenAlex for research papers, GitHub for open-source repositories, and Tavily for web search.
+>
+> Design the integration so that each source is implemented as an independent adapter and can fail independently without preventing the overall research workflow from completing.
 
 ---
 
-# 9. Multi-Source Research Expansion
+# 17. Multi-Source Research Workflow
 
-### Development Prompt
+### Prompt
 
-> We can add a part that it will also refer to open source repos, web search, research papers.
-
-### Investigation
-
-Before implementation, the relevant APIs were tested to verify availability and response formats.
-
-The following sources were evaluated:
-
-- OpenAlex — research papers
-- GitHub — open-source repositories
-- Tavily — web search
-- Wikipedia — encyclopedia/reference information
-
----
-
-# 10. Multi-Source Architecture
-
-The research workflow was redesigned so that independent sources could be queried in parallel.
-
-```text
-                    Research Topic
-                          │
-                          ▼
-                    Query Planning
-                          │
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-        ▼                 ▼                 ▼
-    Wikipedia          OpenAlex          GitHub
-        │                 │                 │
-        │                 ▼                 │
-        │          Research Papers          │
-        │                                   │
-        └─────────────────┬─────────────────┘
-                          │
-                          ▼
-                    Web Search
-                       Tavily
-                          │
-                          ▼
-                   Source Analysis
-                          │
-                          ▼
-                    Report Writer
-                          │
-                          ▼
-                  Research Report
-```
-
-Each source adapter was implemented in:
-
-```text
-src/sources.ts
-```
-
-The workflow executes source collection as independent durable steps wherever possible.
-
-Source-specific analysis instructions are then used to extract information appropriate to the type of source.
+> Redesign the research Workflow to support multiple independent information sources.
+>
+> The Workflow should:
+>
+> 1. Generate research queries.
+> 2. Query Wikipedia, OpenAlex, GitHub, and web search where available.
+> 3. Execute independent source collection steps in parallel where appropriate.
+> 4. Extract structured notes from each source.
+> 5. Apply source-specific extraction instructions.
+> 6. Combine the resulting notes.
+> 7. Generate a consolidated research brief.
+>
+> Keep the workflow durable and compatible with Cloudflare Workflows.
+>
+> Avoid making the final report dependent on any single external source.
 
 ---
 
-# 11. Source-Specific Processing
+# 18. Source-Specific Analysis
 
-Different source types require different extraction strategies.
+### Prompt
 
-### Wikipedia
-
-The model is instructed to produce:
-
-- 5–8 concise bullet points
-- Relevant factual information
-- No unsupported claims
-
-### Research Papers
-
-The model extracts:
-
-- Research question
-- Methodology
-- Main findings
-- Relevance to the research topic
-
-### Open-Source Repositories
-
-The model extracts:
-
-- Project purpose
-- Relationship to the research topic
-- Important capabilities
-- Notable features
-
-Installation instructions and unrelated README content are intentionally ignored.
-
-### Web Pages
-
-The model extracts:
-
-- Relevant factual information
-- Important findings
-- Topic-specific details
-
-Navigation, advertisements, and boilerplate content are ignored.
+> Implement source-aware analysis instructions so that the LLM processes each source type according to its purpose.
+>
+> For Wikipedia, extract concise factual information relevant to the research topic.
+>
+> For research papers, identify the research question, methodology, and principal findings.
+>
+> For open-source repositories, identify the project's purpose, relevance, and notable capabilities while ignoring installation instructions.
+>
+> For web pages, extract relevant factual information while ignoring navigation, advertising, and boilerplate content.
+>
+> Ensure that the analysis stage extracts only information explicitly supported by the provided source text.
 
 ---
 
-# 12. Research Report Generation
+# 19. Research Report Generation
 
-The report-generation stage combines the structured notes from all available sources.
+### Prompt
 
-The generated report contains:
-
-```text
-## Overview
-
-## Key findings
-
-## What the research says
-
-## Open-source projects
-
-## Details
-
-## Open questions
-```
-
-The sections related to research papers and open-source projects are included only when those source types are available.
-
-The generated report is limited to approximately **800 words** to keep the output concise and useful.
-
-A source list is appended automatically by the application rather than being generated by the model.
+> Improve the research report-generation stage so that the final output is concise, structured, and suitable for a professional research brief.
+>
+> The report should contain:
+>
+> - Overview
+> - Key findings
+> - What the research says
+> - Open-source projects, when applicable
+> - Details
+> - Open questions
+>
+> Keep the report below 800 words.
+>
+> Use only the structured research notes provided to the model.
+>
+> Add inline citations using the supplied source identifiers.
+>
+> Do not generate an independent sources list because the application will append the authoritative source metadata automatically.
 
 ---
 
-# 13. Runtime Configuration
+# 20. Runtime Prompt Design
 
-Optional external integrations are configured through environment variables.
+The Agent's runtime system prompt was designed to provide the model with the current application state on every conversational turn.
 
-```text
-TAVILY_API_KEY
-GITHUB_TOKEN
-```
+The prompt includes:
 
-The application is designed so that individual external sources can operate on a best-effort basis without preventing the entire research workflow from completing.
+- Current date
+- Persistent user facts
+- Previously generated research reports
+- Active research workflows
+- Tool usage rules
+- Citation integrity requirements
 
-This allows the research assistant to remain functional even when one external source is unavailable.
+This ensures that the model operates using the latest application state rather than relying solely on conversational context.
 
 ---
 
-# 14. Runtime LLM
+# 21. Runtime Model
 
 The application uses:
 
@@ -566,15 +392,11 @@ The application uses:
 @cf/meta/llama-3.3-70b-instruct-fp8-fast
 ```
 
-through:
+through Cloudflare Workers AI.
 
-```text
-Cloudflare Workers AI
-```
+The model is responsible for:
 
-The LLM is used for:
-
-- Conversational reasoning
+- Natural-language understanding
 - Tool selection
 - Research query planning
 - Source analysis
@@ -582,260 +404,50 @@ The LLM is used for:
 - Report generation
 - Report summarization
 
----
-
-# 15. Runtime Prompt — Chat Agent
-
-The chat Agent system prompt is rebuilt on every turn so that the model receives the latest application state, including memory, saved reports, and active research jobs.
-
-### System Prompt
-
-```text
-You are a friendly research assistant running on Cloudflare.
-You can start deep research jobs, recall past reports, and remember facts about the user.
-
-Guidelines:
-- Only call startResearch when the user explicitly asks you to research, investigate, or look into a topic. Call it once per request. Do not write the report yourself.
-- Mentioning an interest is not a request for research: call rememberFact, then offer to research it.
-- When the user asks about something they researched before, call searchReports and then getReport, and answer from the report, citing its sources.
-- For quick general questions, answer directly and concisely.
-- When the user tells you something lasting about themselves, call rememberFact.
-- Never invent report IDs, sources, or dates. When citing, use the source titles and URLs exactly as the report gives them.
-
-Today's date: <YYYY-MM-DD>
-
-What you remember about the user:
-- <fact> …
-
-Saved reports (ID: topic):
-- <id>: <topic> …
-
-Research in progress:
-- <topic> (<current step>) …
-```
-
-### Available Agent Tools
-
-The Agent has access to four application-level tools:
-
-```text
-startResearch
-searchReports
-getReport
-rememberFact
-```
-
-The tool descriptions additionally provide the model with the constraints and intended usage of each operation.
+Long-running research execution itself is delegated to Cloudflare Workflows rather than being performed directly within the conversational model loop.
 
 ---
 
-# 16. Runtime Research Prompts
+# 22. Runtime Validation
 
-## 16.1 Query Planning
+The final multi-source implementation was validated through both direct Workflow execution and browser-based end-to-end testing.
 
-### System
+A representative research execution successfully collected:
 
-```text
-You plan encyclopedia searches. Reply with ONLY a JSON array of strings, no prose.
-```
+- 4 Wikipedia articles
+- 2 research papers
+- 2 open-source repositories
 
-### User
+The complete workflow executed in approximately 41 seconds.
 
-```text
-Give 3 short, distinct Wikipedia search queries that together cover the topic: "<topic>".
-```
-
-The resulting array is parsed using a tolerant `parseStringArray` implementation.
-
-The original research topic is always retained as a fallback query.
+The generated research report was subsequently validated through the actual chat interface, including persistence, retrieval, and follow-up questioning.
 
 ---
 
-## 16.2 Source Analysis
+# 23. Final Development Approach
 
-### System
-
-```text
-You are a meticulous research assistant. Extract only facts stated in the source text. Do not invent anything.
-```
-
-### User
+The project followed an iterative engineering process:
 
 ```text
-Research topic: "<topic>"
-
-Source: <source type> "<title>" (<metadata>)
-
-<source text, up to 12,000 characters>
-
-<source-specific instruction>
+Documentation
+      ↓
+Requirements Analysis
+      ↓
+Architecture Design
+      ↓
+Initial Implementation
+      ↓
+Static Validation
+      ↓
+End-to-End Testing
+      ↓
+Runtime Debugging
+      ↓
+Reliability Improvements
+      ↓
+Multi-Source Expansion
+      ↓
+Final Validation
 ```
 
-The final instruction is dynamically selected based on the source type.
-
----
-
-## 16.3 Report Generation
-
-### System
-
-```text
-You write clear, well-structured research briefs in Markdown. Use only the provided notes and cite them inline as [1], [2], etc.
-```
-
-### User
-
-```text
-Topic: "<topic>"
-
-Research notes:
-[1] <Source type>: <title> (<metadata>)
-<notes>
-…
-
-Write a research brief with these sections:
-'## Overview',
-'## Key findings',
-'## What the research says',
-'## Open-source projects',
-'## Details',
-'## Open questions'.
-
-Keep it under 800 words.
-
-Do not add a sources list; it is appended automatically.
-```
-
-The research-paper and open-source sections are included only when corresponding source material is available.
-
----
-
-# 17. Report Summarization
-
-### System
-
-```text
-You summarize documents in one or two plain sentences with no preamble.
-```
-
-### User
-
-```text
-Summarize this research brief in at most two sentences:
-
-<report>
-```
-
-This stage produces a concise summary suitable for displaying in the application UI and for quickly reviewing previously generated reports.
-
----
-
-# 18. Validation Results
-
-The final multi-source research implementation was validated through both direct workflow execution and browser-based end-to-end testing.
-
-A representative workflow execution successfully collected:
-
-```text
-4 Wikipedia articles
-2 research papers
-2 open-source repositories
-```
-
-The workflow completed in approximately:
-
-```text
-41 seconds
-```
-
-The resulting report was then validated through the actual chat interface.
-
----
-
-# 19. Engineering Principles Applied
-
-Throughout development, the implementation followed several principles:
-
-### Reliability
-
-External API failures are handled using retries, backoff, deduplication, and best-effort source execution.
-
-### Source Integrity
-
-The model is explicitly prohibited from fabricating:
-
-- Sources
-- URLs
-- Dates
-- Report IDs
-- Unsupported facts
-
-### Durable Execution
-
-Long-running research is delegated to Cloudflare Workflows rather than being performed entirely inside a single conversational request.
-
-### Separation of Responsibilities
-
-The application separates:
-
-```text
-Conversation
-    ↓
-Agent
-    ↓
-Workflow
-    ↓
-Source Adapters
-    ↓
-LLM Analysis
-    ↓
-Persistent Report
-```
-
-### Test-Driven Iteration
-
-Important runtime behaviors were verified through direct execution and end-to-end browser testing rather than relying solely on static implementation checks.
-
----
-
-# 20. Final Technology Stack
-
-| Component | Technology |
-|---|---|
-| AI Model | Llama 3.3 70B Instruct |
-| AI Runtime | Cloudflare Workers AI |
-| Agent Framework | Cloudflare Agents |
-| Workflow | Cloudflare Workflows |
-| Application Runtime | Cloudflare Workers |
-| Frontend | React / TypeScript |
-| Persistence | SQLite |
-| Encyclopedia Source | Wikipedia |
-| Research Papers | OpenAlex |
-| Open-Source Repositories | GitHub |
-| Web Search | Tavily |
-| Development Environment | VS Code + Claude Code |
-| Runtime | Node.js 24 LTS |
-| Deployment | Cloudflare Workers |
-
----
-
-# 21. Development Summary
-
-The application evolved from a basic Wikipedia-powered research assistant into a multi-source, stateful research platform.
-
-The final implementation provides:
-
-- Conversational interaction
-- Persistent user memory
-- Durable research workflows
-- Multi-source research
-- Research-paper analysis
-- Open-source project discovery
-- Web search integration
-- Source-aware report generation
-- Citation integrity controls
-- Duplicate prevention
-- Retry and backoff handling
-- End-to-end validation
-
-The `PROMPTS.md` file therefore serves not only as a record of AI prompts, but also as a traceable development history showing how the application was designed, validated, debugged, and progressively improved.
+The AI coding assistant was used as a development accelerator, while architectural decisions, implementation requirements, validation criteria, and debugging objectives were explicitly defined throughout the development process.
